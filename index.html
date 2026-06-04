@@ -1,133 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>#000000</title>
-    <link type="image/x-icon" rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAHklEQVQ4T2NkYGD4z0ABYBw1gGE0DBhGw4BhWIQBAE5OEAELnjVHAAAAAElFTkSuQmCC">
+    <title>Responsive Auth Portal</title>
     <style>
-        :root {
-            --color: #000000;
-            --color-transparent: #00000022;
-        }
-
-        ::selection {
-            background: var(--color-transparent);
-        }
-
-        html,
-        body {
-            background: var(--color);
-            height: 100%;
+        /* --- Reset & Base Styles --- */
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f4f7f6;
+            color: #333;
         }
 
-        #color {
-            background: white;
-            color: var(--color);
+        /* --- Header Styles --- */
+        header {
+            background-color: #1e293b;
+            color: #ffffff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        header nav btn, header nav button {
+            background-color: #38bdf8;
+            color: #1e293b;
+            border: none;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        header nav button.secondary {
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+
+        header nav button:hover {
+            background-color: #0ea5e9;
+            color: #fff;
+        }
+
+        /* --- Main Content Layout --- */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* --- Content Blocks --- */
+        .content-left h1 {
             font-size: 2.5rem;
-            font-weight: 300;
-            padding: 2.25rem 3rem;
-            font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue, helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
-            cursor: text;
+            margin-bottom: 1rem;
+            color: #0f172a;
+        }
+
+        .content-left p {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: #475569;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            background: #000;
+        }
+
+        .video-container iframe, .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* --- Modal (Popup) Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            display: none;
+        }
+
+        .modal-overlay.active .modal-box.active {
+            display: block;
+            transform: translateY(0);
+        }
+
+        .modal-box h2 {
+            margin-bottom: 1rem;
+            color: #0f172a;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #334155;
+        }
+
+        .modal-box p {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .modal-box p a {
+            color: #0ea5e9;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* --- Success / Regenerate State Style --- */
+        .success-state {
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 3.5rem;
+            color: #22c55e;
+            margin-bottom: 1rem;
+        }
+        .regen-btn {
+            background-color: #22c55e;
+            margin-top: 1rem;
+        }
+        .regen-btn:hover {
+            background-color: #16a34a;
+        }
+
+        /* --- Footer Styles --- */
+        footer {
+            background-color: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+            font-size: 0.9rem;
         }
     </style>
 </head>
-
 <body>
-    <p id="color">#000000</p>
+
+    <header>
+        <div class="logo">FlexPortal</div>
+        <nav>
+            <button class="secondary" onclick="openModal('loginModal')">Log In</button>
+            <button onclick="openModal('signupModal')">Sign Up</button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="content-left">
+            <h1>Welcome to the Future of Content</h1>
+            <p>Experience an immersive, fully responsive environment tailored to handle workflows instantly. This system handles identity verification, secure access creation, and dynamic state updates seamlessly.</p>
+            
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Product Overview Video"></iframe>
+            </div>
+        </div>
+
+        <div class="content-right">
+            <p style="margin-bottom: 1rem; color: #475569;">Discover powerful tools and visual dynamic grids optimized flawlessly across desktop, tablet, and mobile displays.</p>
+            <div class="image-container">
+                <img src="https://picsum.photos/600/400" alt="Placeholder Grid Preview">
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals(event)">
+        
+        <div class="modal-box" id="loginModal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2>Welcome Back</h2>
+            <form onsubmit="handleFormSubmit(event, 'Login Successful!')">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+            <p>Don't have an account? <a href="#" onclick="switchModal('signupModal')">Register here</a></p>
+        </div>
+
+        <div class="modal-box" id="signupModal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2>Create Account</h2>
+            <form onsubmit="handleFormSubmit(event, 'Account Created Successfully!')">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required placeholder="Create strong password">
+                </div>
+                <button type="submit" class="submit-btn">Get Started</button>
+            </form>
+            <p>Already have an account? <a href="#" onclick="switchModal('loginModal')">Log in here</a></p>
+        </div>
+
+        <div class="modal-box success-state" id="successModal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="success-icon">✓</div>
+            <h2 id="successMessage">Action Successful!</h2>
+            <p>Your request has been securely processed by our server environment.</p>
+            <button class="submit-btn regen-btn" onclick="regenerateSession()">Regenerate Session Token</button>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 FlexPortal Technologies. All rights reserved.
+    </footer>
+
     <script>
-        function randomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1) + min);
+        const overlay = document.getElementById('modalOverlay');
+        const modalBoxes = document.querySelectorAll('.modal-box');
+
+        function openModal(modalId) {
+            overlay.classList.add('active');
+            modalBoxes.forEach(box => box.classList.remove('active'));
+            document.getElementById(modalId).classList.add('active');
         }
 
-        function hslToHex(h, s, l) {
-            h /= 360;
-            s /= 100;
-            l /= 100;
-            var r = void 0,
-                g = void 0,
-                b = void 0;
-            if (s === 0) {
-                r = g = b = l; // achromatic
-            } else {
-                var hue2rgb = function hue2rgb(p, q, t) {
-                    if (t < 0) t += 1;
-                    if (t > 1) t -= 1;
-                    if (t < 1 / 6) return p + (q - p) * 6 * t;
-                    if (t < 1 / 2) return q;
-                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-                    return p;
-                };
-                var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                var p = 2 * l - q;
-                r = hue2rgb(p, q, h + 1 / 3);
-                g = hue2rgb(p, q, h);
-                b = hue2rgb(p, q, h - 1 / 3);
-            }
-            var toHex = function toHex(x) {
-                var hex = Math.round(x * 255).toString(16);
-                return hex.length === 1 ? '0' + hex : hex;
-            };
-            return '#' + toHex(r) + toHex(g) + toHex(b);
+        function closeModal() {
+            overlay.classList.remove('active');
+            modalBoxes.forEach(box => box.classList.remove('active'));
         }
 
-        window.onload = function () {
-            let stopProp = function (ev) {
-                ev.stopPropagation();
+        // Close when clicking outside the active white box
+        function closeAllModals(e) {
+            if (e.target === overlay) {
+                closeModal();
             }
+        }
 
-            var colorElement = document.getElementById("color");
-            colorElement.addEventListener("click", stopProp, false);
-            colorElement.addEventListener("mousedown", stopProp, false);
+        function switchModal(modalId) {
+            modalBoxes.forEach(box => box.classList.remove('active'));
+            document.getElementById(modalId).classList.add('active');
+        }
 
-            var setFavicon = function (hex) {
-                var canvas = document.createElement('canvas');
-                canvas.width = 16;
-                canvas.height = 16;
-                var ctx = canvas.getContext('2d');
-                ctx.fillStyle = hex;
-                ctx.fillRect(0, 0, 16, 16);
-                document.getElementsByTagName('link')[0].href = canvas.toDataURL("image/x-icon");
-            }
+        function handleFormSubmit(event, successText) {
+            event.preventDefault(); // Stop page refresh
+            document.getElementById('successMessage').innerText = successText;
+            switchModal('successModal');
+        }
 
-            var setRandomColor = function setRandomColor() {
-                var h = void 0,
-                    s = void 0,
-                    l = void 0;
-
-                h = randomInt(0, 359);
-                s = randomInt(55, 75);
-                l = randomInt(40, 60);
-
-                document.documentElement.style.setProperty('--color', 'hsl(' + h + ', ' + s + '%, ' + l + '%)');
-                var hex = hslToHex(h, s, l);
-                document.title = hex;
-                colorElement.innerHTML = hex;
-                document.documentElement.style.setProperty('--color-transparent', hex + '22');
-
-                setFavicon(hex);
-            };
-            setRandomColor();
-
-            var body = document.getElementsByTagName("body")[0];
-            body.addEventListener("mousedown", function (ev) {
-                ev.preventDefault();
-            });
-            body.addEventListener("click", function () {
-                setRandomColor();
-            }, false);
-        };
+        function regenerateSession() {
+            const msgHtml = document.getElementById('successMessage');
+            msgHtml.innerText = "Token Regenerated!";
+            alert("New secure cryptographic session token requested and updated successfully!");
+        }
     </script>
 </body>
-
 </html>
